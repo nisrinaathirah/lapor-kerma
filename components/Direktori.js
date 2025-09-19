@@ -82,10 +82,10 @@ export default function Directory() {
     {showKerjasama && (
       <>
         <button className="w-full bg-[#003366] text-white px-4 py-2 text-left text-sm pl-6 hover:bg-blue-800 transition rounded-none">
-          MOU
+          MoU
         </button>
         <button className="w-full bg-[#003366] text-white px-4 py-2 text-left text-sm pl-6 hover:bg-blue-800 transition rounded-none">
-          MOA
+          MoA
         </button>
         <button className="w-full bg-[#003366] text-white px-4 py-2 text-left text-sm pl-6 hover:bg-blue-800 transition rounded-none">
           IA
