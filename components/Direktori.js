@@ -212,11 +212,11 @@ export default function Directory() {
           <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left font-bold text-[#003366]">No</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#003366]">Nama Instansi</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#003366]">Jumlah Kerjasama</th>
-                  <th className="px-4 py-3 text-left font-bold text-[#003366]">Bentuk Kegiatan</th>
+                <tr className="bg-[#003366] text-white">
+                  <th className="px-4 py-3 text-left font-bold">No</th>
+                  <th className="px-4 py-3 text-left font-bold">Nama Instansi</th>
+                  <th className="px-4 py-3 text-left font-bold">Jumlah Kerjasama</th>
+                  <th className="px-4 py-3 text-left font-bold">Bentuk Kegiatan</th>
                 </tr>
               </thead>
               <tbody>
@@ -224,20 +224,20 @@ export default function Directory() {
                   <tr
                     key={item.id}
                     className={`${
-                      index % 2 === 0 ? "bg-white" : "bg-blue-100"
+                      index % 2 === 0 ? "bg-blue-50" : "bg-blue-100"
                     } hover:bg-blue-200 transition-colors`}
                   >
-                    <td className="px-4 py-3 border-t border-gray-200 text-[#003366]">
-                      {startIndex + index + 1}
+                    <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium">
+                      {index + 1}.
                     </td>
-                    <td className="px-4 py-3 border-t border-gray-200 font-medium text-[#003366]">
+                    <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366]">
                       {item.name}
                     </td>
                     <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center">
                       {item.jumlah}
                     </td>
                     <td className="px-4 py-3 border-t border-gray-200">
-                      <span className="font-semibold text-[#003366] cursor-pointer hover:underline transition">
+                      <span className="text-[#003366] cursor-pointer hover:underline transition">
                         Join Research
                       </span>
                     </td>
@@ -246,7 +246,6 @@ export default function Directory() {
               </tbody>
             </table>
           </div>
-
           {/* Pagination */}
           <div className="flex justify-end mt-4 gap-1">
             <button
