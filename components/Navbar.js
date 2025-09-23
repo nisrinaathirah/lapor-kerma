@@ -21,7 +21,7 @@ export default function Navbar() {
           <li><Link href="/" className="hover:underline">Beranda</Link></li>
           <li><Link href="/direktori" className="hover:underline">Direktori</Link></li>
           <li><Link href="/statistik" className="hover:underline">Statistik</Link></li>
-          <li><Link href="/faq" className="hover:underline">FAQ</Link></li>
+          <li><Link href="/FAQ" className="hover:underline">FAQ</Link></li>
         </ul>
 
         {/* Tombol Login */}
