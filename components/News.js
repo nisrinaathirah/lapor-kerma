@@ -51,7 +51,7 @@ export default function Berita() {
   return (
     <section className="bg-white px-12 py-16">
       {/* Judul */}
-      <h2 className="text-[28px] font-bold text-[#003366] mb-8 ml-8 px-4 md:px-0">
+      <h2 className="text-3xl font-bold text-[#003366] mb-8 ml-8 px-4 md:px-0">
         Berita Terkini
       </h2>
 
