@@ -22,6 +22,10 @@ export default function FAQ() {
     {
       question: "Siapa yang dapat mengajukan laporan kerjasama?",
       answer: "Laporan kerjasama dapat diajukan oleh dosen, tenaga kependidikan, atau pejabat institusi yang telah mendapatkan izin dari pimpinan perguruan tinggi dan telah menandatangani perjanjian kerjasama secara resmi."
+    },
+    {
+        question: "Apa saja jenis kerjasama yang harus dilaporkan?",
+        answer: "Jenis kerjasama yang wajib dilaporkan meliputi: Penelitian bersama, pertukaran mahasiswa/dosen, pengabdian kepada masyarakat, pelatihan dan workshop, publikasi bersama, joint degree / double degree"
     }
   ];
 
