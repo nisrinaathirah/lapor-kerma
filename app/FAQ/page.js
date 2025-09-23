@@ -80,7 +80,7 @@ export default function FAQ() {
             We are here to help you!
           </p>
         </div>
-        <button className="bg-[#003366] hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-full shadow transition-colors duration-200">
+        <button className="bg-[#003366] hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg shadow transition-colors duration-200">
           Get in touch
         </button>
       </div>
