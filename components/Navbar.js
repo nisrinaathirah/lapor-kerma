@@ -7,17 +7,48 @@ import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [registerData, setRegisterData] = useState({
+    salutation: "",
+    fullName: "",
+    email: "",
+    phone: "",
+    group: "",
+    institution: "",
+    password: "",
+    assignmentLetter: null,
+  });
+
   const router = useRouter();
 
+  // Handle Login
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("Login:", { email, password });
+    console.log("Login:", loginData);
     alert("Login berhasil!");
     setIsLoginOpen(false);
-    // Jika perlu redirect setelah login:
-    // router.push("/dashboard");
+    router.push("/admin");
+  };
+
+  // Handle Register
+  const handleRegister = (e) => {
+    e.preventDefault();
+    console.log("Registration:", registerData);
+    alert("Registrasi berhasil!");
+    setIsRegisterOpen(false);
+  };
+
+  const handleRegisterInputChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    setRegisterData((prev) => ({
+      ...prev,
+      assignmentLetter: e.target.files[0],
+    }));
   };
 
   return (
@@ -41,7 +72,7 @@ export default function Navbar() {
             <li><Link href="/FAQ" className="hover:underline">FAQ</Link></li>
           </ul>
 
-          {/* Tombol Login → Buka Modal */}
+          {/* Tombol Login → Buka Modal Login */}
           <button
             onClick={() => setIsLoginOpen(true)}
             className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500"
@@ -61,17 +92,28 @@ export default function Navbar() {
             className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md relative"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Icon Home di pojok kiri atas */}
+            {/* Icon Home → ke Beranda */}
             <button
               onClick={() => {
                 setIsLoginOpen(false);
                 router.push("/");
               }}
-              className="absolute top-4 left-4 text-gray-600 hover:text-gray-800 transition-colors"
+              className="absolute top-4 left-4 text-gray-600 hover:text-[#003366] transition-colors"
               aria-label="Kembali ke beranda"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 001 1h3m-6 0a1 1 0 001-1v-4a1 1 0 00-1-1h2M3 5a2 2 0 002 2h14a2 2 0 002-2V3a1 1 0 00-1-1H4a1 1 0 00-1 1v2z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1V5a1 1 0 00-1-1H9a1 1 0 00-1 1v14a1 1 0 001 1h2"
+                />
               </svg>
             </button>
 
@@ -82,13 +124,12 @@ export default function Navbar() {
 
             {/* Form Login */}
             <form onSubmit={handleLogin} className="space-y-6">
-              {/* Email Input */}
               <div className="relative">
                 <input
                   type="email"
                   placeholder="Masukkan email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
                   required
                 />
@@ -97,13 +138,12 @@ export default function Navbar() {
                 </svg>
               </div>
 
-              {/* Password Input */}
               <div className="relative">
                 <input
                   type="password"
                   placeholder="Masukkan sandi"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={loginData.password}
+                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
                   required
                 />
@@ -112,14 +152,12 @@ export default function Navbar() {
                 </svg>
               </div>
 
-              {/* Lupa Sandi */}
               <div className="text-right">
                 <button type="button" className="text-sm text-gray-600 hover:text-[#003366] font-medium">
                   Lupa sandi?
                 </button>
               </div>
 
-              {/* Tombol Login */}
               <button
                 type="submit"
                 className="w-full bg-[#003366] hover:bg-[#002c5b] text-white font-medium py-2 px-4 rounded transition-colors duration-300"
@@ -127,14 +165,13 @@ export default function Navbar() {
                 Login
               </button>
 
-              {/* Daftar */}
               <div className="text-center text-sm text-gray-600">
                 Belum punya akun?{" "}
                 <button
                   type="button"
                   onClick={() => {
                     setIsLoginOpen(false);
-                    router.push("/daftar");
+                    setIsRegisterOpen(true);
                   }}
                   className="font-semibold text-[#003366] hover:underline"
                 >
@@ -142,6 +179,170 @@ export default function Navbar() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Daftar (Bisa di-scroll) */}
+      {isRegisterOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setIsRegisterOpen(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-8 pt-6">
+
+              {/* Judul */}
+              <h2 className="text-xl text-[#003366] font-bold text-center mb-6">REGISTRATION</h2>
+
+              {/* Form Daftar */}
+              <form onSubmit={handleRegister} className="space-y-4">
+                {/* Salutation */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Salutation</label>
+                  <select
+                    name="salutation"
+                    value={registerData.salutation}
+                    onChange={handleRegisterInputChange}
+                    className="w-full text-grey-800 font-medium pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
+                    required
+                  >
+                    <option value="">-- Pilih --</option>
+                    <option value="Bpk/Sdr.">Bpk/Sdr.</option>
+                    <option value="Ibu/Sdri.">Ibu/Sdri.</option>
+                  </select>
+                </div>
+
+                {/* Full Name */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    placeholder="Masukkan nama lengkap anda"
+                    value={registerData.fullName}
+                    onChange={handleRegisterInputChange}
+                    className="w-full pl-3 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Masukkan email anda"
+                    value={registerData.email}
+                    onChange={handleRegisterInputChange}
+                    className="w-full pl-3 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                {/* Phone */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Masukkan nomor ponsel anda"
+                    value={registerData.phone}
+                    onChange={handleRegisterInputChange}
+                    className="w-full pl-3 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                {/* Group */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Group</label>
+                  <select
+                    name="group"
+                    value={registerData.group}
+                    onChange={handleRegisterInputChange}
+                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
+                    required
+                  >
+                    <option value="">Pilih group</option>
+                    <option value="Admin Perguruan Tinggi">Admin Perguruan Tinggi</option>
+                    <option value="Admin LLDIKTI">Admin LLDIKTI</option>
+                  </select>
+                </div>
+
+                {/* Institution */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                  <input
+                    type="text"
+                    name="institution"
+                    placeholder="Search for a repository"
+                    value={registerData.institution}
+                    onChange={handleRegisterInputChange}
+                    className="w-full pl-3 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                {/* Password */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Masukkan sandi"
+                    value={registerData.password}
+                    onChange={handleRegisterInputChange}
+                    className="w-full pl-3 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
+                    required
+                  />
+                </div>
+
+                {/* Assignment Letter */}
+                <div className="relative">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Assignment letter</label>
+                  <div className="flex items-center border border-gray-300 rounded px-3 py-2">
+                    <span className="text-xs text-gray-500 mr-2">Choose file</span>
+                    <input
+                      type="file"
+                      name="assignmentLetter"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="assignmentLetter"
+                    />
+                    <label htmlFor="assignmentLetter" className="text-xs text-gray-600 cursor-pointer hover:text-gray-800">
+                      {registerData.assignmentLetter ? registerData.assignmentLetter.name : "No file chosen"}
+                    </label>
+                  </div>
+                </div>
+
+                {/* Tombol Submit */}
+                <button
+                  type="submit"
+                  className="w-full bg-[#003366] hover:bg-[#002c5b] text-white font-medium py-2 px-4 rounded transition-colors duration-300"
+                >
+                  SUBMIT
+                </button>
+
+                {/* Back home */}
+                <div className="text-center text-sm text-gray-600 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRegisterOpen(false);
+                      router.push("/");
+                    }}
+                    className="font-semibold text-[#003366] hover:underline"
+                  >
+                    Back home
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
