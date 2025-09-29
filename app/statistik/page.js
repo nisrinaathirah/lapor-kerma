@@ -283,6 +283,7 @@ useEffect(() => {
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-[#003366]">Statistik Kerja Sama Internasional</h2>
             <p className="mt-2 text-gray-700">Peta distribusi kerja sama antar institusi pendidikan tinggi.</p>
+        <hr className="my-6 border-[#003366]" />
           </div>
 
           {/* 🗺️ Map Container */}
