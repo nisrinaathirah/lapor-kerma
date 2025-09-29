@@ -41,7 +41,7 @@ export default function FAQ() {
         <p className="text-gray-600">
           Kami telah merangkum pertanyaan yang paling sering diajukan untuk membantu Anda menemukan jawaban dengan cepat dan mudah.
         </p>
-        <hr className="my-6 border-gray-300" />
+        <hr className="my-6 border-[#003366]" />
       </div>
 
       {/* FAQ List */}
