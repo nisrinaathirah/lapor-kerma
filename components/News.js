@@ -7,39 +7,17 @@ import "swiper/css/pagination";
 
 import { Navigation, Pagination } from "swiper/modules";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Berita() {
-  const beritaData = [
-    {
-      id: 1,
-      title:
-        "Mendikstaintek menghadiri Upacara Gelar Pasukan Operasional dan Kehormatan Militer di Batujajar Bandung",
-      date: "10 Agustus 2025",
-      image: "/berita1.webp",
-    },
-    {
-      id: 2,
-      title:
-        "Mendikstaintek menghadiri Upacara Gelar Pasukan Operasional dan Kehormatan Militer di Batujajar Bandung",
-      date: "10 Agustus 2025",
-      image: "/berita2.webp",
-    },
-    {
-      id: 3,
-      title:
-        "Mendikstaintek menghadiri Upacara Gelar Pasukan Operasional dan Kehormatan Militer di Batujajar Bandung",
-      date: "10 Agustus 2025",
-      image: "/berita3.webp",
-    },
-    {
-      id: 4,
-      title:
-        "Berita tambahan contoh dengan judul lebih pendek",
-      date: "12 Agustus 2025",
-      image: "/berita4.jpg",
-    },
-  ];
+  const [beritaData, setBeritaData] = useState([]);
+
+useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/news")
+      .then((res) => res.json())
+      .then((data) => setBeritaData(data))
+      .catch((err) => console.error("Error fetch statistik:", err));
+  }, []);
 
   useEffect(() => {
     const prev = document.querySelector(".swiper-button-prev");
@@ -63,7 +41,7 @@ export default function Berita() {
         navigation
         pagination={{ clickable: true }}
         loop
-        className="pb-12 pt-6"
+        className="pb-12 pt-6 custom-swiper"
         breakpoints={{
           0: { slidesPerView: 1 },
           640: { slidesPerView: 2 },
@@ -78,8 +56,13 @@ export default function Berita() {
                   src={item.image}
                   alt={item.title}
                   fill
+                  unoptimized
                   className="object-cover rounded-t-lg"
                 />
+
+                  <h3>{item.title}</h3>
+                  <p>{item.date}</p>
+                  
               </div>
               <div className="p-4 flex-1 flex flex-col justify-between">
                 <h3 className="text-base font-semibold text-gray-800 mb-2">
