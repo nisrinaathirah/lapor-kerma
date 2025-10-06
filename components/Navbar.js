@@ -207,12 +207,12 @@ export default function Navbar() {
                     name="salutation"
                     value={registerData.salutation}
                     onChange={handleRegisterInputChange}
-                    className="w-full text-grey-800 font-medium pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
+                    className="w-full text-gray-800 font-medium pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
                     required
                   >
-                    <option value="">-- Pilih --</option>
-                    <option value="Bpk/Sdr.">Bpk/Sdr.</option>
-                    <option value="Ibu/Sdri.">Ibu/Sdri.</option>
+                    <option value="" className="text-gray-400">-- Pilih --</option>
+                    <option value="Bpk/Sdr." className="text-gray-800">Bpk/Sdr.</option>
+                    <option value="Ibu/Sdri." className="text-gray-800">Ibu/Sdri.</option>
                   </select>
                 </div>
 
@@ -265,12 +265,12 @@ export default function Navbar() {
                     name="group"
                     value={registerData.group}
                     onChange={handleRegisterInputChange}
-                    className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
+                    className="w-full text-gray-800 font-medium pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
                     required
                   >
-                    <option value="">Pilih group</option>
-                    <option value="Admin Perguruan Tinggi">Admin Perguruan Tinggi</option>
-                    <option value="Admin LLDIKTI">Admin LLDIKTI</option>
+                    <option value="" className="text-gray-400">--Pilih--</option>
+                    <option value="Admin Perguruan Tinggi" className="text-gray-800">Admin Perguruan Tinggi</option>
+                    <option value="Admin LLDIKTI" className="text-gray-800">Admin LLDIKTI</option>
                   </select>
                 </div>
 
@@ -317,6 +317,19 @@ export default function Navbar() {
                     <label htmlFor="assignmentLetter" className="text-xs text-gray-600 cursor-pointer hover:text-gray-800">
                       {registerData.assignmentLetter ? registerData.assignmentLetter.name : "No file chosen"}
                     </label>
+                    {registerData.assignmentLetter && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRegisterData((prev) => ({ ...prev, assignmentLetter: null }));
+                        }}
+                        className="ml-2 text-red-500 hover:text-red-700"
+                        aria-label="Hapus file"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 </div>
 
