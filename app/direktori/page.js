@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 export default function Directory() {
   const [search, setSearch] = useState("");
@@ -10,17 +10,49 @@ export default function Directory() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  // State untuk data dari API
+  const [kerjasamaData, setKerjasamaData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   // State filter
-  const [selectedKerjasama, setSelectedKerjasama] = useState();
-  const [selectedStatus, setSelectedStatus] = useState();
-  const [selectedKegiatan, setSelectedKegiatan] = useState();
+  const [selectedKerjasama, setSelectedKerjasama] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [selectedKegiatan, setSelectedKegiatan] = useState(null);
   const [showAllKegiatanTable, setShowAllKegiatanTable] = useState(false);
+
+  // Fetch data dari backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        let url = "http://localhost:8000/api/kerjasama";
+        if (selectedKerjasama) {
+          url += `?type=${selectedKerjasama}`;
+        }
+        
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Gagal mengambil data kerjasama');
+        const data = await res.json();
+        setKerjasamaData(data);
+      } catch (err) {
+        console.error('Error:', err);
+        setError('Gagal memuat data. Silakan coba lagi nanti.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedKerjasama]);
 
   // Fungsi pilih filter
   const selectKerjasama = (type) => {
     setSelectedKerjasama(type);
-    setSelectedStatus(undefined);
-    setSelectedKegiatan(undefined);
+    setSelectedStatus(null);
+    setSelectedKegiatan(null);
     setShowAllKegiatanTable(false);
     setCurrentPage(1);
     setSearch("");
@@ -28,8 +60,8 @@ export default function Directory() {
 
   const selectStatus = (status) => {
     setSelectedStatus(status);
-    setSelectedKerjasama(undefined);
-    setSelectedKegiatan(undefined);
+    setSelectedKerjasama(null);
+    setSelectedKegiatan(null);
     setShowAllKegiatanTable(false);
     setCurrentPage(1);
     setSearch("");
@@ -37,15 +69,15 @@ export default function Directory() {
 
   const selectKegiatan = (kegiatan) => {
     setSelectedKegiatan(kegiatan);
-    setSelectedKerjasama(undefined);
-    setSelectedStatus(undefined);
+    setSelectedKerjasama(null);
+    setSelectedStatus(null);
     setShowAllKegiatanTable(false);
     setCurrentPage(1);
     setSearch("");
   };
 
   // Cek apakah ada filter aktif
-  const hasActiveFilter = !!selectedKerjasama || !!selectedStatus || !!selectedKegiatan;
+  const hasActiveFilter = selectedKerjasama || selectedStatus || selectedKegiatan;
 
   // === Daftar lengkap bentuk kegiatan ===
   const allKegiatanNames = [
@@ -80,58 +112,47 @@ export default function Directory() {
     "Pelatihan"
   ];
 
-  // Data lengkap kerja sama
-  const allKerjasamaData = [
-    { id: 1, instansi: "Universitas Gadjah Mada", bentuk: "MoU", bentukKegiatan: "Penelitian/Riset-Kampus Merdeka", judul: "Kerja Sama Riset 2023", status: "Aktif" },
-    { id: 2, instansi: "Universitas Indonesia", bentuk: "MoA", bentukKegiatan: "Pertukaran Mahasiswa", judul: "Pertukaran Mahasiswa", status: "Kadaluarsa" },
-    { id: 3, instansi: "Universitas Airlangga", bentuk: "IA", bentukKegiatan: "Pelatihan Dosen dan Instruktur", judul: "Pelatihan Dosen", status: "Perpanjangan" },
-    { id: 4, instansi: "Universitas Gunadarma", bentuk: "MoU", bentukKegiatan: "Penelitian/Riset-Kampus Merdeka", judul: "Pengembangan Kurikulum", status: "Aktif" },
-    { id: 5, instansi: "Universitas Padjadjaran", bentuk: "MoA", bentukKegiatan: "Pertukaran Mahasiswa", judul: "Kerja Praktek Bersama", status: "Aktif" },
-    { id: 6, instansi: "Universitas Brawijaya", bentuk: "IA", bentukKegiatan: "Penyelenggaraan Seminar/Konferensi Ilmiah", judul: "Workshop Internasional", status: "Kadaluarsa" },
-    { id: 7, instansi: "Institut Teknologi Bandung", bentuk: "MoU", bentukKegiatan: "Gelar Bersama (Joint Degree)", judul: "Joint Degree Program", status: "Perpanjangan" },
-    { id: 8, instansi: "Universitas Sebelas Maret", bentuk: "MoA", bentukKegiatan: "Penelitian/Riset-Kampus Merdeka", judul: "Penelitian Kolaboratif", status: "Aktif" },
-    { id: 9, instansi: "Universitas Diponegoro", bentuk: "IA", bentukKegiatan: "Pelatihan Dosen dan Instruktur", judul: "Publikasi Bersama", status: "Kadaluarsa" },
-    { id: 10, instansi: "Universitas Negeri Yogyakarta", bentuk: "MoU", bentukKegiatan: "Pengabdian Kepada Masyarakat", judul: "Pengabdian Masyarakat", status: "Aktif" },
-  ];
-
   // === Top 5 Bentuk Kegiatan ===
   const top5Kegiatan = useMemo(() => {
     const count = {};
-    allKerjasamaData.forEach(item => {
-      if (allKegiatanNames.includes(item.bentukKegiatan)) {
-        count[item.bentukKegiatan] = (count[item.bentukKegiatan] || 0) + 1;
+    kerjasamaData.forEach(item => {
+      if (allKegiatanNames.includes(item.bentuk_kegiatan)) {
+        count[item.bentuk_kegiatan] = (count[item.bentuk_kegiatan] || 0) + 1;
       }
     });
     return Object.entries(count)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([kegiatan]) => kegiatan);
-  }, []);
+  }, [kerjasamaData]);
 
   // === Ringkasan SEMUA kegiatan (29 item) ===
   const allKegiatanSummary = useMemo(() => {
     return allKegiatanNames.map((kegiatan, index) => {
-      const jumlah = allKerjasamaData.filter(item => item.bentukKegiatan === kegiatan).length;
+      const jumlah = kerjasamaData.filter(item => item.bentuk_kegiatan === kegiatan).length;
       return {
         no: index + 1,
         bentukKegiatan: kegiatan,
         jumlah
       };
     });
-  }, [allKerjasamaData]);
+  }, [kerjasamaData]);
 
   // === Filter data untuk kerjasama/status ===
-  let filteredData = [...allKerjasamaData];
+  let filteredData = [...kerjasamaData];
   if (selectedKerjasama) {
-    filteredData = filteredData.filter(item => item.bentuk === selectedKerjasama);
+    filteredData = filteredData.filter(item => item.bentuk_kerjasama === selectedKerjasama);
   } else if (selectedStatus) {
-    filteredData = filteredData.filter(item => item.status === selectedStatus);
+    filteredData = filteredData.filter(item => item.status_kerjasama === selectedStatus);
+  } else if (selectedKegiatan) {
+    filteredData = filteredData.filter(item => item.bentuk_kegiatan === selectedKegiatan);
   }
 
   // Terapkan pencarian
-  if (!selectedKegiatan && !showAllKegiatanTable) {
+  if (!showAllKegiatanTable) {
     filteredData = filteredData.filter(item =>
-      item.instansi.toLowerCase().includes(search.toLowerCase())
+      item.judul_kerjasama.toLowerCase().includes(search.toLowerCase()) ||
+      item.bentuk_kegiatan.toLowerCase().includes(search.toLowerCase())
     );
   }
 
@@ -142,9 +163,42 @@ export default function Directory() {
   // === Ringkasan untuk 1 kegiatan spesifik ===
   const kegiatanSummary = useMemo(() => {
     if (!selectedKegiatan) return [];
-    const data = allKerjasamaData.filter(item => item.bentukKegiatan === selectedKegiatan);
+    const data = kerjasamaData.filter(item => item.bentuk_kegiatan === selectedKegiatan);
     return [{ no: 1, bentukKegiatan: selectedKegiatan, jumlah: data.length }];
   }, [selectedKegiatan]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white px-4 py-8 md:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="animate-pulse h-8 bg-gray-200 rounded w-1/3 mb-8"></div>
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white px-4 py-8 md:px-8">
+        <div className="max-w-6xl mx-auto text-center">
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-[#003366] text-white rounded hover:bg-blue-800"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white px-4 py-8 md:px-8">
@@ -152,7 +206,7 @@ export default function Directory() {
       <div className="max-w-6xl mx-auto mb-10">
         <h1 className="text-3xl font-bold text-[#003366] mb-2">Direktori</h1>
         <p className="text-gray-600">
-          Pilih filter untuk menampilkan data kerja sama instansi
+          Daftar kerja sama institusi dalam dan luar negeri
         </p>
         <hr className="my-6 border-[#003366]" />
       </div>
@@ -302,7 +356,7 @@ export default function Directory() {
             {showStatus && (
               <>
                 <button
-                  onClick={() => selectStatus("Aktif")}
+                  onClick={() => selectStatus("aktif")}
                   className={`w-full px-4 py-2 text-left text-sm pl-6 transition rounded-none ${
                     selectedStatus === "Aktif"
                       ? "bg-blue-800 text-white"
@@ -312,7 +366,7 @@ export default function Directory() {
                   Aktif
                 </button>
                 <button
-                  onClick={() => selectStatus("Kadaluarsa")}
+                  onClick={() => selectStatus("kadaluarsa")}
                   className={`w-full px-4 py-2 text-left text-sm pl-6 transition rounded-none ${
                     selectedStatus === "Kadaluarsa"
                       ? "bg-blue-800 text-white"
@@ -322,7 +376,7 @@ export default function Directory() {
                   Kadaluarsa
                 </button>
                 <button
-                  onClick={() => selectStatus("Perpanjangan")}
+                  onClick={() => selectStatus("perpanjangan")}
                   className={`w-full px-4 py-2 text-left text-sm pl-6 transition rounded-b-lg ${
                     selectedStatus === "Perpanjangan"
                       ? "bg-blue-800 text-white"
@@ -375,185 +429,181 @@ export default function Directory() {
           )}
 
           {/* Tampilan utama */}
-          {!hasActiveFilter && !showAllKegiatanTable ? (
-            <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-              <p className="text-gray-500 text-center px-4">
-                Pilih salah satu filter di sebelah kiri untuk menampilkan data kerja sama.
-              </p>
-            </div>
-          ) : showAllKegiatanTable ? (
-            // === TABEL LENGKAP SEMUA KEGIATAN ===
+{!hasActiveFilter && !showAllKegiatanTable ? (
+  <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+    <p className="text-gray-500 text-center px-4">
+      Pilih salah satu filter di sebelah kiri untuk menampilkan data kerja sama.
+    </p>
+  </div>
+) : showAllKegiatanTable ? (
+  // === TABEL RINGKASAN SEMUA KEGIATAN (tetap seperti sebelumnya) ===
+  <>
+    <p className="text-sm text-gray-600 mt-2 mb-4">
+      Menampilkan {allKegiatanSummary.length} bentuk kegiatan
+    </p>
+    <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          <tr className="bg-[#003366] text-white">
+            <th className="px-4 py-3 text-left font-bold min-w-12">No</th>
+            <th className="px-4 py-3 text-left font-bold">Bentuk Kegiatan</th>
+            <th className="px-4 py-3 text-left font-bold min-w-32 text-center">Jumlah Kerjasama</th>
+          </tr>
+        </thead>
+        <tbody>
+          {allKegiatanSummary
+            .filter(item =>
+              item.bentukKegiatan.toLowerCase().includes(search.toLowerCase())
+            )
+            .map((item) => (
+              <tr
+                key={item.no}
+                className="bg-blue-50 hover:bg-blue-100 transition-colors"
+              >
+                <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium min-w-12">
+                  {item.no}.
+                </td>
+                <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] min-w-0 truncate">
+                  {item.bentukKegiatan}
+                </td>
+                <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center min-w-32">
+                  {item.jumlah}
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
+  </>
+) : (selectedKerjasama || selectedStatus || selectedKegiatan) && filteredData.length > 0 ? (
+  // === TABEL DETAIL KERJASAMA (untuk semua filter) ===
+<>
+  <p className="text-sm text-gray-600 mt-2 mb-4">
+    Menampilkan {currentData.length} dari {filteredData.length} hasil
+  </p>
+  <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
+    <table className="w-full border-collapse text-sm">
+      <thead>
+        <tr className="bg-[#003366] text-white">
+          <th className="px-4 py-3 text-left font-bold min-w-12">No</th>
+          
+          {/* Nama Mitra hanya untuk Bentuk Kerjasama & Bentuk Kegiatan */}
+          {(selectedKerjasama || selectedKegiatan) && (
+            <th className="px-4 py-3 text-left font-bold">Nama Mitra</th>
+          )}
+          
+          {/* Judul Kerjasama hanya untuk Status */}
+          {selectedStatus && (
+            <th className="px-4 py-3 text-left font-bold">Judul Kerjasama</th>
+          )}
+          
+          {/* Kolom tambahan spesifik */}
+          {selectedKerjasama && (
             <>
-              <p className="text-sm text-gray-600 mt-2 mb-4">
-                Menampilkan {allKegiatanSummary.length} bentuk kegiatan
-              </p>
-              <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-[#003366] text-white">
-                      <th className="px-4 py-3 text-left font-bold min-w-12">No</th>
-                      <th className="px-4 py-3 text-left font-bold">Bentuk Kegiatan</th>
-                      <th className="px-4 py-3 text-left font-bold min-w-32 text-center">Jumlah Kerjasama</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allKegiatanSummary
-                      .filter(item =>
-                        item.bentukKegiatan.toLowerCase().includes(search.toLowerCase())
-                      )
-                      .map((item) => (
-                        <tr
-                          key={item.no}
-                          className="bg-blue-50 hover:bg-blue-100 transition-colors"
-                        >
-                          <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium min-w-12">
-                            {item.no}.
-                          </td>
-                          <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] min-w-0 truncate">
-                            {item.bentukKegiatan}
-                          </td>
-                          <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center min-w-32">
-                            {item.jumlah}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          ) : selectedKegiatan ? (
-            // === TABEL 1 KEGIATAN ===
-            <>
-              <p className="text-sm text-gray-600 mt-2 mb-4">
-                Menampilkan 1 hasil
-              </p>
-              <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-[#003366] text-white">
-                      <th className="px-4 py-3 text-left font-bold min-w-12">No</th>
-                      <th className="px-4 py-3 text-left font-bold">Bentuk Kegiatan</th>
-                      <th className="px-4 py-3 text-left font-bold min-w-32 text-center">Jumlah Kerjasama</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {kegiatanSummary.map((item) => (
-                      <tr
-                        key={item.no}
-                        className="bg-blue-50 hover:bg-blue-100 transition-colors"
-                      >
-                        <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium min-w-12">
-                          {item.no}.
-                        </td>
-                        <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] min-w-0 truncate">
-                          {item.bentukKegiatan}
-                        </td>
-                        <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center min-w-32">
-                          {item.jumlah}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          ) : filteredData.length === 0 ? (
-            <div className="flex items-center justify-center h-40 bg-gray-50 rounded-lg border">
-              <p className="text-gray-500">Tidak ada data yang sesuai dengan filter.</p>
-            </div>
-          ) : (
-            // === TABEL KERJASAMA / STATUS ===
-            <>
-              <p className="text-sm text-gray-600 mt-2 mb-4">
-                Menampilkan {currentData.length} dari {filteredData.length} hasil
-              </p>
-              <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-[#003366] text-white">
-                      <th className="px-4 py-3 text-left font-bold min-w-12">No</th>
-                      <th className="px-4 py-3 text-left font-bold">Nama Instansi</th>
-                      {selectedKerjasama && (
-                        <>
-                          <th className="px-4 py-3 text-left font-bold min-w-32 text-center">Jumlah Kerjasama</th>
-                          <th className="px-4 py-3 text-left font-bold">Bentuk Kerjasama</th>
-                        </>
-                      )}
-                      {selectedStatus && (
-                        <>
-                          <th className="px-4 py-3 text-left font-bold">Judul Kerjasama</th>
-                          <th className="px-4 py-3 text-left font-bold">Status</th>
-                        </>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentData.map((item, index) => (
-                      <tr
-                        key={item.id}
-                        className={`${index % 2 === 0 ? "bg-blue-50" : "bg-blue-100"} hover:bg-blue-200 transition-colors`}
-                      >
-                        <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium min-w-12">
-                          {startIndex + index + 1}.
-                        </td>
-                        <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] min-w-0 truncate">
-                          {item.instansi}
-                        </td>
-                        {selectedKerjasama && (
-                          <>
-                            <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center min-w-32">
-                              1
-                            </td>
-                            <td className="px-4 py-3 border-t border-gray-200 min-w-0 truncate">
-                              <span className="text-[#003366]">{item.bentuk}</span>
-                            </td>
-                          </>
-                        )}
-                        {selectedStatus && (
-                          <>
-                            <td className="px-4 py-3 border-t border-gray-200 min-w-0 truncate">
-                              <span className="text-[#003366]">{item.judul}</span>
-                            </td>
-                            <td className="px-4 py-3 border-t border-gray-200 min-w-0 truncate">
-                              <span className="text-[#003366]">{item.status}</span>
-                            </td>
-                          </>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="flex justify-end mt-4 gap-1">
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className={`px-3 py-1 text-xs border rounded transition ${
-                    currentPage === 1
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-white text-gray-800 hover:bg-gray-100"
-                  }`}
-                >
-                  Previous
-                </button>
-                <span className="px-3 py-1 text-xs bg-white border border-gray-300 rounded text-gray-800 font-medium flex items-center">
-                  {currentPage}
-                </span>
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className={`px-3 py-1 text-xs border rounded transition ${
-                    currentPage === totalPages
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-white text-gray-800 hover:bg-gray-100"
-                  }`}
-                >
-                  Next
-                </button>
-              </div>
+              <th className="px-4 py-3 text-left font-bold min-w-32 text-center">Jumlah</th>
+              <th className="px-4 py-3 text-left font-bold">Bentuk Kerjasama</th>
             </>
           )}
+          {selectedKegiatan && (
+            <>
+              <th className="px-4 py-3 text-left font-bold min-w-32 text-center">Jumlah</th>
+              <th className="px-4 py-3 text-left font-bold">Bentuk Kegiatan</th>
+            </>
+          )}
+          {selectedStatus && (
+            <th className="px-4 py-3 text-left font-bold">Status</th>
+          )}
+        </tr>
+      </thead>
+      <tbody>
+        {currentData.map((item, index) => (
+          <tr
+            key={item.id}
+            className={`${index % 2 === 0 ? "bg-blue-50" : "bg-blue-100"} hover:bg-blue-200 transition-colors`}
+          >
+            <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium min-w-12">
+              {startIndex + index + 1}.
+            </td>
+            
+            {/* Nama Mitra hanya untuk Bentuk Kerjasama & Bentuk Kegiatan */}
+            {(selectedKerjasama || selectedKegiatan) && (
+              <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] min-w-0 truncate">
+                {item.nama_mitra}
+              </td>
+            )}
+            
+            {/* Judul Kerjasama hanya untuk Status */}
+            {selectedStatus && (
+              <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] min-w-0 truncate">
+                {item.judul_kerjasama}
+              </td>
+            )}
+            
+            {/* Kolom tambahan spesifik */}
+            {selectedKerjasama && (
+              <>
+                <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center min-w-32">
+                  1
+                </td>
+                <td className="px-4 py-3 border-t border-gray-200 min-w-0 truncate">
+                  <span className="text-[#003366]">{item.bentuk_kerjasama}</span>
+                </td>
+              </>
+            )}
+            {selectedKegiatan && (
+              <>
+                <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center min-w-32">
+                  1
+                </td>
+                <td className="px-4 py-3 border-t border-gray-200 min-w-0 truncate">
+                  <span className="text-[#003366]">{item.bentuk_kegiatan}</span>
+                </td>
+              </>
+            )}
+            {selectedStatus && (
+              <td className="px-4 py-3 border-t border-gray-200 min-w-0 truncate">
+                <span className="text-[#003366]">{item.status_kerjasama}</span>
+              </td>
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <div className="flex justify-end mt-4 gap-1">
+    <button
+      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+      disabled={currentPage === 1}
+      className={`px-3 py-1 text-xs border rounded transition ${
+        currentPage === 1
+          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+          : "bg-white text-gray-800 hover:bg-gray-100"
+      }`}
+    >
+      Previous
+    </button>
+    <span className="px-3 py-1 text-xs bg-white border border-gray-300 rounded text-gray-800 font-medium flex items-center">
+      {currentPage}
+    </span>
+    <button
+      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+      disabled={currentPage === totalPages}
+      className={`px-3 py-1 text-xs border rounded transition ${
+        currentPage === totalPages
+          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+          : "bg-white text-gray-800 hover:bg-gray-100"
+      }`}
+    >
+      Next
+    </button>
+  </div>
+</>
+) : (
+  <div className="flex items-center justify-center h-40 bg-gray-50 rounded-lg border">
+    <p className="text-gray-500">Tidak ada data yang sesuai dengan filter.</p>
+  </div>
+)}
         </main>
       </div>
     </div>
