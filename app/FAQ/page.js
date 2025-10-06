@@ -1,43 +1,42 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
+  const [faqs, setFaqs] = useState([]); // Mulai dengan array kosong, BUKAN null
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const faqs = [
-    {
-      question: "Apa itu Laporan Kerjasama Kemdikti?",
-      answer: "Laporan Kerjasama Kemdikti adalah dokumen resmi yang digunakan untuk melaporkan hasil kerja sama antara institusi pendidikan tinggi dengan pihak luar, baik dalam maupun luar negeri, sesuai dengan ketentuan yang ditetapkan oleh Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi (Kemendikbudristek)."
-    },
-    {
-      question: "Apa saja jenis bentuk kerjasama yang bisa dilaporkan?",
-      answer: "Jenis kerjasama yang dapat dilaporkan meliputi: kerjasama akademik, penelitian, pengabdian kepada masyarakat, pertukaran mahasiswa/dosen, pelatihan, dan kerjasama teknologi. Semua bentuk kerjasama harus memenuhi syarat formalitas dan legalitas."
-    },
-    {
-      question: "Bagaimana cara mengakses Laporan Kerjasama?",
-      answer: "Anda dapat mengakses Laporan Kerjasama melalui portal resmi Kemdikti atau sistem informasi khusus yang disediakan oleh institusi pendidikan tinggi. Biasanya login dilakukan melalui akun SIAKAD atau Sistem Informasi Perguruan Tinggi (SIPPT)."
-    },
-    {
-      question: "Siapa yang dapat mengajukan laporan kerjasama?",
-      answer: "Laporan kerjasama dapat diajukan oleh dosen, tenaga kependidikan, atau pejabat institusi yang telah mendapatkan izin dari pimpinan perguruan tinggi dan telah menandatangani perjanjian kerjasama secara resmi."
-    },
-    {
-        question: "Apa saja jenis kerjasama yang harus dilaporkan?",
-        answer: "Jenis kerjasama yang wajib dilaporkan meliputi: Penelitian bersama, pertukaran mahasiswa/dosen, pengabdian kepada masyarakat, pelatihan dan workshop, publikasi bersama, joint degree / double degree"
-    }
-  ];
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/faq");
+        if (!res.ok) throw new Error("Gagal memuat FAQ");
+        const data = await res.json();
+        setFaqs(data);
+      } catch (err) {
+        console.error("Error:", err);
+        setError("Gagal memuat daftar FAQ. Silakan coba lagi nanti.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFAQs();
+  }, []);
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  // Selalu render struktur yang sama — hindari if(loading) yang ganti seluruh layout
   return (
     <div className="min-h-screen bg-white px-4 py-8 md:px-8">
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-10">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Frequently Asked Question</h1>
+        <h1 className="text-3xl font-bold text-[#003366] mb-2">Frequently Asked Question</h1>
         <p className="text-gray-600">
           Kami telah merangkum pertanyaan yang paling sering diajukan untuk membantu Anda menemukan jawaban dengan cepat dan mudah.
         </p>
@@ -46,33 +45,59 @@ export default function FAQ() {
 
       {/* FAQ List */}
       <div className="max-w-4xl mx-auto space-y-4">
-        {faqs.map((faq, index) => (
-          <div
-            key={index}
-            className="border border-gray-700 rounded-md overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md"
-          >
-            <button
-              onClick={() => toggleFAQ(index)}
-              className="w-full flex justify-between items-center px-6 py-4 text-left text-gray-800 font-medium focus:outline-none"
-            >
-              <span>{faq.question}</span>
-              <span className={`transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </span>
-            </button>
+        {error ? (
+          <div className="text-center py-6 text-red-600 bg-red-50 rounded-md">
+            {error}
+          </div>
+        ) : loading ? (
+          // Render skeleton dengan struktur yang mirip tabel akhir
+          Array.from({ length: 5 }).map((_, i) => (
             <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-              }`}
+              key={i}
+              className="border border-gray-300 rounded-md overflow-hidden shadow-sm"
             >
-              <div className="px-6 py-4 text-gray-700 leading-relaxed">
-                {faq.answer}
+              <div className="px-6 py-4 bg-gray-100 animate-pulse">
+                <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+              </div>
+              <div className="px-6 py-4 bg-white">
+                <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-5/6"></div>
               </div>
             </div>
+          ))
+        ) : faqs.length > 0 ? (
+          faqs.map((faq, index) => (
+            <div
+              key={faq.id} // Gunakan ID unik dari DB
+              className="border border-gray-700 rounded-md overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md"
+            >
+              <button
+                onClick={() => toggleFAQ(index)}
+                className="w-full flex justify-between items-center px-6 py-4 text-left text-gray-800 font-medium focus:outline-none"
+              >
+                <span>{faq.question}</span>
+                <span className={`transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div className="px-6 py-4 text-gray-700 leading-relaxed">
+                  {faq.answer}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-6 text-gray-500">
+            Tidak ada pertanyaan yang tersedia.
           </div>
-        ))}
+        )}
       </div>
 
       {/* Get in touch section */}
@@ -84,9 +109,9 @@ export default function FAQ() {
             We are here to help you!
           </p>
         </div>
-        <button className="bg-[#003366] hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg shadow transition-colors duration-200">
+        <Link href="/contact" className="bg-[#003366] hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg shadow transition-colors duration-200">
           Get in touch
-        </button>
+        </Link>
       </div>
     </div>
   );
