@@ -347,6 +347,23 @@ export default function Directory() {
             </>
           ) : filteredData.length > 0 ? (
             <>
+              {/* Tombol kembali ke daftar "More..." */}
+              {selectedKegiatan && !showAllKegiatanTable && (
+                <div className="mb-4">
+                  <button
+                    onClick={() => {
+                      setShowAllKegiatanTable(true);
+                      setSelectedKegiatan(null);
+                      setSearch("");
+                      setCurrentPage(1);
+                    }}
+                    className="text-sm text-[#003366] hover:underline flex items-center gap-1"
+                  >
+                    ← Sebelumnya
+                  </button>
+                </div>
+              )}
+
               <p className="text-sm text-gray-600 mt-2 mb-4">
                 Menampilkan {currentData.length} dari {filteredData.length} hasil
               </p>
