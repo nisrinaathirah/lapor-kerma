@@ -18,6 +18,7 @@ export default function Directory() {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedKegiatan, setSelectedKegiatan] = useState(null);
   const [showAllKegiatanTable, setShowAllKegiatanTable] = useState(false);
+  const [isFromMore, setIsFromMore] = useState(false); // 👈 state baru
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +48,7 @@ export default function Directory() {
     setSelectedStatus(null);
     setSelectedKegiatan(null);
     setShowAllKegiatanTable(false);
+    setIsFromMore(false);
     setCurrentPage(1);
     setSearch("");
   };
@@ -56,15 +58,29 @@ export default function Directory() {
     setSelectedKerjasama(null);
     setSelectedKegiatan(null);
     setShowAllKegiatanTable(false);
+    setIsFromMore(false);
     setCurrentPage(1);
     setSearch("");
   };
 
-  const selectKegiatan = (kegiatan) => {
+  // 👇 Fungsi untuk Top 5
+  const selectKegiatanFromTop = (kegiatan) => {
     setSelectedKegiatan(kegiatan);
     setSelectedKerjasama(null);
     setSelectedStatus(null);
     setShowAllKegiatanTable(false);
+    setIsFromMore(false);
+    setCurrentPage(1);
+    setSearch("");
+  };
+
+  // 👇 Fungsi untuk daftar "More..."
+  const selectKegiatanFromMore = (kegiatan) => {
+    setSelectedKegiatan(kegiatan);
+    setSelectedKerjasama(null);
+    setSelectedStatus(null);
+    setShowAllKegiatanTable(false);
+    setIsFromMore(true);
     setCurrentPage(1);
     setSearch("");
   };
@@ -235,9 +251,11 @@ export default function Directory() {
                 {top5Kegiatan.map((kegiatan) => (
                   <button
                     key={kegiatan}
-                    onClick={() => selectKegiatan(kegiatan)}
+                    onClick={() => selectKegiatanFromTop(kegiatan)} // 👈 gunakan fungsi Top 5
                     className={`w-full px-4 py-2 text-left text-sm pl-6 transition rounded-none ${
-                      selectedKegiatan === kegiatan ? "bg-blue-800 text-white" : "bg-[#003366] text-white hover:bg-blue-800"
+                      selectedKegiatan === kegiatan && !isFromMore
+                        ? "bg-blue-800 text-white"
+                        : "bg-[#003366] text-white hover:bg-blue-800"
                     }`}
                   >
                     {kegiatan}
@@ -334,7 +352,7 @@ export default function Directory() {
                         <tr
                           key={item.no}
                           className="bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer"
-                          onClick={() => selectKegiatan(item.bentukKegiatan)}
+                          onClick={() => selectKegiatanFromMore(item.bentukKegiatan)} // 👈 gunakan fungsi More
                         >
                           <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium">{item.no}.</td>
                           <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] truncate">{item.bentukKegiatan}</td>
@@ -347,19 +365,20 @@ export default function Directory() {
             </>
           ) : filteredData.length > 0 ? (
             <>
-              {/* Tombol kembali ke daftar "More..." */}
-              {selectedKegiatan && !showAllKegiatanTable && (
+              {/* 👇 Tombol hanya muncul jika dari "More..." */}
+              {isFromMore && (
                 <div className="mb-4">
                   <button
                     onClick={() => {
                       setShowAllKegiatanTable(true);
                       setSelectedKegiatan(null);
+                      setIsFromMore(false);
                       setSearch("");
                       setCurrentPage(1);
                     }}
                     className="text-sm text-[#003366] hover:underline flex items-center gap-1"
                   >
-                    ← Sebelumnya
+                    Sebelumnya
                   </button>
                 </div>
               )}
