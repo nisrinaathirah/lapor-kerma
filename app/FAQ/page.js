@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
-  const [faqs, setFaqs] = useState([]); // Mulai dengan array kosong, BUKAN null
+  const [faqs, setFaqs] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,7 +31,7 @@ export default function FAQ() {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  // Selalu render struktur yang sama — hindari if(loading) yang ganti seluruh layout
+  
   return (
     <div className="min-h-screen bg-white px-4 py-8 md:px-8">
       {/* Header */}
@@ -50,7 +50,7 @@ export default function FAQ() {
             {error}
           </div>
         ) : loading ? (
-          // Render skeleton dengan struktur yang mirip tabel akhir
+          
           Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
@@ -68,7 +68,7 @@ export default function FAQ() {
         ) : faqs.length > 0 ? (
           faqs.map((faq, index) => (
             <div
-              key={faq.id} // Gunakan ID unik dari DB
+              key={faq.id} 
               className="border border-gray-700 rounded-md overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md"
             >
               <button
