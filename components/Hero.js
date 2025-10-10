@@ -1,13 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link"; // 👈 tambahkan ini
 
 export default function Hero() {
   const [stats, setStats] = useState({ total_mou: 0, total_moa: 0, total_ia: 0 });
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
 
-  // Ambil data statistik dari backend
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/statistik")
       .then((res) => res.json())
@@ -15,18 +15,18 @@ export default function Hero() {
       .catch((err) => console.error("Error fetch statistik:", err));
   }, []);
 
-  // Handle pencarian ke backend
   const handleSearch = async (e) => {
     const q = e.target.value;
     setQuery(q);
 
     if (q.length > 2) {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/search?q=${q}`);
+        const res = await fetch(`http://127.0.0.1:8000/api/search?q=${encodeURIComponent(q)}`);
         const data = await res.json();
         setResults(data);
       } catch (err) {
         console.error("Error search:", err);
+        setResults([]);
       }
     } else {
       setResults([]);
@@ -38,14 +38,12 @@ export default function Hero() {
       {/* Blok 1: Judul + Statistik + Peta */}
       <div className="bg-[#003366] text-white pt-12 pb-0">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start">
-          {/* Kiri: Judul + Statistik */}
           <div className="flex-1">
             <h1 className="text-[40px] font-bold mb-1">Repositori</h1>
             <h1 className="text-[40px] font-bold mb-6">
               Kemitraan Pendidikan Tinggi
             </h1>
 
-            {/* Statistik dari backend */}
             <div className="flex gap-12 mb-0">
               <div>
                 <p className="text-[25px] font-semibold">{stats.total_mou}</p>
@@ -62,7 +60,6 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Kanan: Gambar Peta */}
           <div className="w-[500px] md:ml-12 -mt-12">
             <Image
               src="/peta.png"
@@ -83,7 +80,6 @@ export default function Hero() {
           </p>
           <div className="bg-white rounded-2xl shadow-lg p-2">
             <div className="relative">
-              {/* Icon search */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -99,7 +95,6 @@ export default function Hero() {
                 />
               </svg>
 
-              {/* Input pencarian */}
               <input
                 type="text"
                 placeholder="Cari universitas, mitra, atau kata kunci..."
@@ -110,16 +105,21 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Hasil pencarian */}
+          {/* Hasil pencarian sebagai link ke direktori */}
           {results.length > 0 && (
-            <div className="mt-4 bg-white rounded-xl shadow-md p-4">
+            <div className="mt-4 bg-white rounded-xl shadow-md p-4 max-h-60 overflow-y-auto">
               <ul className="divide-y divide-gray-200">
                 {results.map((item, i) => (
                   <li key={i} className="py-2">
-                    <p className="font-semibold">{item.universitas}</p>
-                    <p className="text-sm text-gray-600">
-                      Mitra: {item.mitra} | Bentuk: {item.bentuk_kerjasama}
-                    </p>
+                    <Link
+                      href={`/direktori?q=${encodeURIComponent(query)}`}
+                      className="block hover:bg-blue-50 p-2 rounded transition"
+                    >
+                      <p className="font-semibold text-[#003366]">{item.universitas}</p>
+                      <p className="text-sm text-gray-600">
+                        Mitra: {item.mitra} | Bentuk: {item.bentuk_kerjasama}
+                      </p>
+                    </Link>
                   </li>
                 ))}
               </ul>
