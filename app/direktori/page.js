@@ -251,7 +251,7 @@ export default function Directory() {
                 {top5Kegiatan.map((kegiatan) => (
                   <button
                     key={kegiatan}
-                    onClick={() => selectKegiatanFromTop(kegiatan)} // 👈 gunakan fungsi Top 5
+                    onClick={() => selectKegiatanFromTop(kegiatan)} 
                     className={`w-full px-4 py-2 text-left text-sm pl-6 transition rounded-none ${
                       selectedKegiatan === kegiatan && !isFromMore
                         ? "bg-blue-800 text-white"
@@ -352,7 +352,7 @@ export default function Directory() {
                         <tr
                           key={item.no}
                           className="bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer"
-                          onClick={() => selectKegiatanFromMore(item.bentukKegiatan)} // 👈 gunakan fungsi More
+                          onClick={() => selectKegiatanFromMore(item.bentukKegiatan)} 
                         >
                           <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium">{item.no}.</td>
                           <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] truncate">{item.bentukKegiatan}</td>
@@ -365,7 +365,7 @@ export default function Directory() {
             </>
           ) : filteredData.length > 0 ? (
             <>
-              {/* 👇 Tombol hanya muncul jika dari "More..." */}
+              
               {isFromMore && (
                 <div className="mb-4">
                   <button
