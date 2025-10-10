@@ -233,60 +233,63 @@ export default function Statistik() {
             </div>
           </div>
 
-          {/* 3 Kotak */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {/* Top 10 Income Generate */}
-            <div className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden">
+          {/* Grid: Income Generate (kiri), Mitra & Kegiatan (kanan) */}
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-6 mb-8">
+            {/* Kotak Income Generate - Kiri */}
+            <div className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden flex flex-col">
               <div className="bg-[#003366] text-white px-4 py-2 text-center font-bold text-sm uppercase tracking-wide">
                 Top 10 Income Generate
-            </div>
-            <div className="p-4">
-              <table className="w-full text-sm"> {/* ganti dari text-xs ke text-sm agar lebih jelas */}
-                <thead>
-                  <tr className="border-b border-gray-300">
-                    <th className="py-2 px-3 text-left text-gray-700 font-semibold">No.</th>
-                    <th className="py-2 px-3 text-left text-gray-700 font-semibold">Instansi</th>
-                    <th className="py-2 px-3 text-right text-gray-700 font-semibold">Jumlah</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.incomeData.map((item) => (
-                    <tr key={item.no} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-2 px-3 text-gray-900 font-medium">{item.no}</td>
-                      <td className="py-2 px-3 text-gray-900 font-medium">{item.instansi}</td>
-                      <td className="py-2 px-3 text-gray-900 font-medium text-right">
-                        {item.jumlah.toLocaleString("id-ID")}
-                      </td>
+              </div>
+              <div className="p-4 overflow-y-auto flex-grow">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-300">
+                      <th className="py-2 px-3 text-left text-gray-700 font-semibold">No.</th>
+                      <th className="py-2 px-3 text-left text-gray-700 font-semibold">Instansi</th>
+                      <th className="py-2 px-3 text-right text-gray-700 font-semibold">Jumlah</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-            {/* Top 5 Mitra */}
-            <div className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden">
-              <div className="bg-[#003366] text-white px-4 py-2 text-center font-bold text-sm uppercase">
-                Top 5 Klasifikasi Mitra
-              </div>
-              <div className="p-4">
-                <div className="w-full h-64">
-                  <canvas ref={mitraChartRef} />
-                </div>
+                  </thead>
+                  <tbody>
+                    {data.incomeData.map((item) => (
+                      <tr key={item.no} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-2 px-3 text-gray-900 font-medium">{item.no}</td>
+                        <td className="py-2 px-3 text-gray-900 font-medium">{item.instansi}</td>
+                        <td className="py-2 px-3 text-gray-900 font-medium text-right">
+                          {item.jumlah.toLocaleString("id-ID")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            {/* Top 5 Kegiatan */}
-            <div className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden">
-              <div className="bg-[#003366] text-white px-4 py-2 text-center font-bold text-sm uppercase">
-                Top 5 Bentuk Kegiatan
-              </div>
-              <div className="p-4">
-                <div className="w-full h-64">
-                  <canvas ref={kegiatanChartRef} />
-                </div>
-              </div>
-            </div>
+  {/* Kolom Kanan: Mitra & Kegiatan */}
+  <div className="flex flex-col gap-6">
+    {/* Top 5 Klasifikasi Mitra */}
+    <div className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden flex flex-col">
+      <div className="bg-[#003366] text-white px-4 py-2 text-center font-bold text-sm uppercase">
+        Top 5 Klasifikasi Mitra
+      </div>
+      <div className="flex-grow flex items-center justify-center p-2 min-h-0">
+        <div className="w-full h-full max-h-[180px]">
+          <canvas ref={mitraChartRef} />
+        </div>
+      </div>
+    </div>
+
+    {/* Top 5 Bentuk Kegiatan */}
+    <div className="bg-white border border-gray-300 rounded-lg shadow-md overflow-hidden flex flex-col">
+      <div className="bg-[#003366] text-white px-4 py-2 text-center font-bold text-sm uppercase">
+        Top 5 Bentuk Kegiatan
+      </div>
+      <div className="flex-grow flex items-center justify-center p-2 min-h-0">
+        <div className="w-full h-full max-h-[180px]">
+          <canvas ref={kegiatanChartRef} />
+        </div>
+      </div>
+    </div>
+  </div>
           </div>
         </div>
       </main>
