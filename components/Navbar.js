@@ -53,7 +53,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-[#003366] text-white px-6 py-4 flex justify-between items-center">
+      <nav className="bg-[#003366] text-white px-6 py-4 flex justify-between items-center sticky top-0 z-[100] shadow-md">
         {/* Logo + Title */}
         <div className="flex items-center gap-0">
           <img src="/logo.png" alt="Logo" className="w-20 h-20" />
