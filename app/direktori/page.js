@@ -14,79 +14,17 @@ export default function Directory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Filter states
   const [selectedKerjasama, setSelectedKerjasama] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedKegiatan, setSelectedKegiatan] = useState(null);
   const [showAllKegiatanTable, setShowAllKegiatanTable] = useState(false);
-  const [isFromMore, setIsFromMore] = useState(false); // 👈 state baru
+  const [isFromMore, setIsFromMore] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        let url = "http://localhost:8000/api/kerjasama";
-        if (selectedKerjasama) {
-          url += `?type=${selectedKerjasama}`;
-        }
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Gagal mengambil data kerjasama');
-        const data = await res.json();
-        setKerjasamaData(data);
-      } catch (err) {
-        console.error('Error:', err);
-        setError('Gagal memuat data. Silakan coba lagi nanti.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [selectedKerjasama]);
+  // 👇 State untuk mode "pencarian global" (bukan filter sidebar)
+  const [isGlobalSearch, setIsGlobalSearch] = useState(false);
 
-  const selectKerjasama = (type) => {
-    setSelectedKerjasama(type);
-    setSelectedStatus(null);
-    setSelectedKegiatan(null);
-    setShowAllKegiatanTable(false);
-    setIsFromMore(false);
-    setCurrentPage(1);
-    setSearch("");
-  };
-
-  const selectStatus = (status) => {
-    setSelectedStatus(status);
-    setSelectedKerjasama(null);
-    setSelectedKegiatan(null);
-    setShowAllKegiatanTable(false);
-    setIsFromMore(false);
-    setCurrentPage(1);
-    setSearch("");
-  };
-
-  // 👇 Fungsi untuk Top 5
-  const selectKegiatanFromTop = (kegiatan) => {
-    setSelectedKegiatan(kegiatan);
-    setSelectedKerjasama(null);
-    setSelectedStatus(null);
-    setShowAllKegiatanTable(false);
-    setIsFromMore(false);
-    setCurrentPage(1);
-    setSearch("");
-  };
-
-  // 👇 Fungsi untuk daftar "More..."
-  const selectKegiatanFromMore = (kegiatan) => {
-    setSelectedKegiatan(kegiatan);
-    setSelectedKerjasama(null);
-    setSelectedStatus(null);
-    setShowAllKegiatanTable(false);
-    setIsFromMore(true);
-    setCurrentPage(1);
-    setSearch("");
-  };
-
-  const hasActiveFilter = selectedKerjasama || selectedStatus || selectedKegiatan;
-
+  // Daftar kegiatan tetap
   const allKegiatanNames = [
     "Pertukaran Pelajar-Kampus Merdeka",
     "Magang/ Praktik Kerja-Kampus Merdeka",
@@ -119,6 +57,80 @@ export default function Directory() {
     "Pelatihan"
   ];
 
+  // Fetch semua data kerjasama
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch("http://localhost:8000/api/kerjasama");
+        if (!res.ok) throw new Error('Gagal mengambil data kerjasama');
+        const data = await res.json();
+        setKerjasamaData(data);
+      } catch (err) {
+        console.error('Error:', err);
+        setError('Gagal memuat data. Silakan coba lagi nanti.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // 👇 Baca query dari URL saat halaman load
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const q = urlParams.get('q');
+    if (q) {
+      setSearch(q);
+      setIsGlobalSearch(true);
+      setCurrentPage(1);
+    }
+  }, []);
+
+  // Reset semua filter saat pencarian global aktif
+  const clearAllFilters = () => {
+    setSelectedKerjasama(null);
+    setSelectedStatus(null);
+    setSelectedKegiatan(null);
+    setShowAllKegiatanTable(false);
+    setIsFromMore(false);
+  };
+
+  const selectKerjasama = (type) => {
+    clearAllFilters();
+    setSelectedKerjasama(type);
+    setIsGlobalSearch(false);
+    setCurrentPage(1);
+    setSearch("");
+  };
+
+  const selectStatus = (status) => {
+    clearAllFilters();
+    setSelectedStatus(status);
+    setIsGlobalSearch(false);
+    setCurrentPage(1);
+    setSearch("");
+  };
+
+  const selectKegiatanFromTop = (kegiatan) => {
+    clearAllFilters();
+    setSelectedKegiatan(kegiatan);
+    setIsGlobalSearch(false);
+    setCurrentPage(1);
+    setSearch("");
+  };
+
+  const selectKegiatanFromMore = (kegiatan) => {
+    clearAllFilters();
+    setSelectedKegiatan(kegiatan);
+    setIsFromMore(true);
+    setIsGlobalSearch(false);
+    setCurrentPage(1);
+    setSearch("");
+  };
+
+  // Hitung top 5 kegiatan
   const top5Kegiatan = useMemo(() => {
     const count = {};
     kerjasamaData.forEach(item => {
@@ -143,17 +155,19 @@ export default function Directory() {
     });
   }, [kerjasamaData]);
 
+  // Filter data
   let filteredData = [...kerjasamaData];
+
+  // Jika ada filter sidebar aktif → gunakan filter
   if (selectedKerjasama) {
     filteredData = filteredData.filter(item => item.bentuk_kerjasama === selectedKerjasama);
   } else if (selectedStatus) {
     filteredData = filteredData.filter(item => item.status_kerjasama === selectedStatus);
   } else if (selectedKegiatan) {
     filteredData = filteredData.filter(item => item.bentuk_kegiatan === selectedKegiatan);
-  }
-
-  if (!showAllKegiatanTable) {
-    filteredData = filteredData.filter(item =>
+  } else if (isGlobalSearch || search) {
+    // Mode pencarian global (dari Hero atau input manual)
+    filteredData = kerjasamaData.filter(item =>
       item.judul_kerjasama.toLowerCase().includes(search.toLowerCase()) ||
       item.bentuk_kegiatan.toLowerCase().includes(search.toLowerCase()) ||
       item.nama_mitra.toLowerCase().includes(search.toLowerCase())
@@ -164,6 +178,7 @@ export default function Directory() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
+  // UI Loading & Error (tetap sama)
   if (loading) {
     return (
       <div className="min-h-screen bg-white px-4 py-8 md:px-8">
@@ -194,6 +209,9 @@ export default function Directory() {
       </div>
     );
   }
+
+  // Apakah ada filter aktif (termasuk pencarian global)
+  const hasActiveFilter = selectedKerjasama || selectedStatus || selectedKegiatan || isGlobalSearch || search;
 
   return (
     <div className="min-h-screen bg-white px-4 py-8 md:px-8">
@@ -263,7 +281,10 @@ export default function Directory() {
                 ))}
                 {top5Kegiatan.length > 0 && (
                   <button
-                    onClick={() => setShowAllKegiatanTable(true)}
+                    onClick={() => {
+                      setShowAllKegiatanTable(true);
+                      setIsGlobalSearch(false);
+                    }}
                     className="w-full px-4 py-2 text-left text-sm pl-6 text-white bg-[#003366] hover:bg-blue-800 transition rounded-none"
                   >
                     More...
@@ -322,7 +343,11 @@ export default function Directory() {
                   type="text"
                   placeholder={showAllKegiatanTable ? "Search bentuk kegiatan..." : "Search directory"}
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setIsGlobalSearch(true);
+                    setCurrentPage(1);
+                  }}
                   className="w-full py-2.5 pl-16 pr-4 bg-white border border-[#003366] rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
                 />
               </div>
@@ -352,7 +377,10 @@ export default function Directory() {
                         <tr
                           key={item.no}
                           className="bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer"
-                          onClick={() => selectKegiatanFromMore(item.bentukKegiatan)} 
+                          onClick={() => {
+                            selectKegiatanFromMore(item.bentukKegiatan);
+                            setShowAllKegiatanTable(false);
+                          }}
                         >
                           <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium">{item.no}.</td>
                           <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] truncate">{item.bentukKegiatan}</td>
@@ -365,7 +393,6 @@ export default function Directory() {
             </>
           ) : filteredData.length > 0 ? (
             <>
-              
               {isFromMore && (
                 <div className="mb-4">
                   <button
@@ -378,7 +405,7 @@ export default function Directory() {
                     }}
                     className="text-sm text-[#003366] hover:underline flex items-center gap-1"
                   >
-                    Sebelumnya
+                    ← Kembali ke daftar kegiatan
                   </button>
                 </div>
               )}
@@ -391,14 +418,11 @@ export default function Directory() {
                   <thead>
                     <tr className="bg-[#003366] text-white">
                       <th className="px-4 py-3 text-left font-bold min-w-12">No</th>
-                      {(selectedKerjasama || selectedKegiatan) && (
-                        <th className="px-4 py-3 text-left font-bold">Nama Mitra</th>
-                      )}
-                      {selectedStatus && <th className="px-4 py-3 text-left font-bold">Judul Kerjasama</th>}
-                      {selectedKerjasama && <th className="px-4 py-3 text-left font-bold">Bentuk Kerjasama</th>}
-                      {selectedKegiatan && <th className="px-4 py-3 text-left font-bold min-w-24 text-center">Jumlah</th>}
-                      {selectedKegiatan && <th className="px-4 py-3 text-left font-bold">Bentuk Kegiatan</th>}
-                      {selectedStatus && <th className="px-4 py-3 text-left font-bold">Status</th>}
+                      <th className="px-4 py-3 text-left font-bold">Nama Mitra</th>
+                      <th className="px-4 py-3 text-left font-bold">Judul Kerjasama</th>
+                      <th className="px-4 py-3 text-left font-bold">Bentuk Kerjasama</th>
+                      <th className="px-4 py-3 text-left font-bold">Bentuk Kegiatan</th>
+                      <th className="px-4 py-3 text-left font-bold">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -410,34 +434,21 @@ export default function Directory() {
                         <td className="px-4 py-3 border-t border-gray-200 text-[#003366] font-medium">
                           {startIndex + index + 1}.
                         </td>
-                        {(selectedKerjasama || selectedKegiatan) && (
-                          <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] truncate">
-                            {item.nama_mitra}
-                          </td>
-                        )}
-                        {selectedStatus && (
-                          <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] truncate">
-                            {item.judul_kerjasama}
-                          </td>
-                        )}
-                        {selectedKerjasama && (
-                          <td className="px-4 py-3 border-t border-gray-200 text-[#003366] truncate">
-                            {item.bentuk_kerjasama}
-                          </td>
-                        )}
-                        {selectedKegiatan && (
-                          <>
-                            <td className="px-4 py-3 border-t border-gray-200 text-[#003366] text-center">1</td>
-                            <td className="px-4 py-3 border-t border-gray-200 text-[#003366] truncate">
-                              {item.bentuk_kegiatan}
-                            </td>
-                          </>
-                        )}
-                        {selectedStatus && (
-                          <td className="px-4 py-3 border-t border-gray-200 text-[#003366] truncate">
-                            {item.status_kerjasama}
-                          </td>
-                        )}
+                        <td className="px-4 py-3 border-t border-gray-200 font-bold text-[#003366] truncate">
+                          {item.nama_mitra}
+                        </td>
+                        <td className="px-4 py-3 border-t border-gray-200 text-[#003366] truncate">
+                          {item.judul_kerjasama}
+                        </td>
+                        <td className="px-4 py-3 border-t border-gray-200 text-[#003366] truncate">
+                          {item.bentuk_kerjasama}
+                        </td>
+                        <td className="px-4 py-3 border-t border-gray-200 text-[#003366] truncate">
+                          {item.bentuk_kegiatan}
+                        </td>
+                        <td className="px-4 py-3 border-t border-gray-200 text-[#003366] truncate">
+                          {item.status_kerjasama}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
