@@ -27,9 +27,37 @@ export default function Footer() {
         <div className="space-y-2 pl-18">
           <h3 className="font-kadwa text-[18px] font-bold">Tautan Penting</h3>
           <ul className="space-y-1 text-gray-600">
-            <li><a href="#" className="hover:underline"> Kemdikbud</a></li>
-            <li><a href="#" className="hover:underline"> Dikti</a></li>
-        </ul>
+            <li>
+              <a 
+                href="https://kemdiktisaintek.go.id/tentang-kami/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:underline"
+              >
+                Dikti
+              </a>
+            </li>
+            <li>
+              <a 
+                href="https://ats.data.kemendikdasmen.go.id/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:underline"
+              >
+                Kemendikdasmen
+              </a>
+            </li>
+            <li>
+              <a 
+                href="https://www.kemenbud.go.id/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:underline"
+              >
+                Kemenbud
+              </a>
+            </li>
+          </ul>
         </div>
         
         {/* Bagian Kanan */}
