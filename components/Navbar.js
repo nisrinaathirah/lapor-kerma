@@ -1,11 +1,13 @@
-
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -51,48 +53,73 @@ export default function Navbar() {
     }));
   };
 
+  const isModalOpen = isLoginOpen || isRegisterOpen;
+
   return (
     <>
-      <nav className="bg-[#003366] text-white px-6 py-4 flex justify-between items-center sticky top-0 z-[100] shadow-md">
-        {/* Logo + Title */}
-        <div className="flex items-center gap-0">
-          <img src="/logo.png" alt="Logo" className="w-20 h-20" />
-          <div className="flex flex-col leading-tight">
-            <span className="font-bold text-lg">LAPOR KERMA</span>
-            <span className="text-xs">Kementerian Pendidikan Tinggi, Sains, dan Teknologi</span>
+      {/* Navbar hanya muncul jika tidak ada modal */}
+      {!isModalOpen && (
+        <nav
+          className={`bg-[#003366] text-white px-6 py-4 flex justify-between items-center sticky top-0 z-[110] ${
+            isHomePage ? "" : "shadow-md"
+          }`}
+        >
+          {/* Logo + Title */}
+          <div className="flex items-center gap-0">
+            <img src="/logo.png" alt="Logo" className="w-20 h-20" />
+            <div className="flex flex-col leading-tight">
+              <span className="font-bold text-lg">LAPOR KERMA</span>
+              <span className="text-xs">
+                Kementerian Pendidikan Tinggi, Sains, dan Teknologi
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Menu + Button */}
-        <div className="flex items-center gap-6">
-          <ul className="hidden md:flex gap-6">
-            <li><Link href="/" className="hover:underline">Beranda</Link></li>
-            <li><Link href="/direktori" className="hover:underline">Direktori</Link></li>
-            <li><Link href="/statistik" className="hover:underline">Statistik</Link></li>
-            <li><Link href="/FAQ" className="hover:underline">FAQ</Link></li>
-          </ul>
+          {/* Menu + Button */}
+          <div className="flex items-center gap-6">
+            <ul className="hidden md:flex gap-6">
+              <li>
+                <Link href="/" className="hover:underline">
+                  Beranda
+                </Link>
+              </li>
+              <li>
+                <Link href="/direktori" className="hover:underline">
+                  Direktori
+                </Link>
+              </li>
+              <li>
+                <Link href="/statistik" className="hover:underline">
+                  Statistik
+                </Link>
+              </li>
+              <li>
+                <Link href="/FAQ" className="hover:underline">
+                  FAQ
+                </Link>
+              </li>
+            </ul>
 
-          {/* Tombol Login → Buka Modal Login */}
-          <button
-            onClick={() => setIsLoginOpen(true)}
-            className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500"
-          >
-            Login
-          </button>
-        </div>
-      </nav>
+            <button
+              onClick={() => setIsLoginOpen(true)}
+              className="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md hover:bg-yellow-500"
+            >
+              Login
+            </button>
+          </div>
+        </nav>
+      )}
 
       {/* Modal Login */}
       {isLoginOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[120] p-4"
           onClick={() => setIsLoginOpen(false)}
         >
           <div
             className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md relative"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Icon Home → ke Beranda */}
             <button
               onClick={() => {
                 setIsLoginOpen(false);
@@ -117,24 +144,39 @@ export default function Navbar() {
               </svg>
             </button>
 
-            {/* Logo */}
             <div className="flex justify-center mb-8">
-              <img src="/logo.png" alt="Logo LAPOR KERMA" className="w-16 h-16" />
+              <img
+                src="/logo.png"
+                alt="Logo LAPOR KERMA"
+                className="w-16 h-16"
+              />
             </div>
 
-            {/* Form Login */}
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="relative">
                 <input
                   type="email"
                   placeholder="Masukkan email"
                   value={loginData.email}
-                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, email: e.target.value })
+                  }
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
                   required
                 />
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 4.5.75.75 0 01-.75-.75v-4.5a.75.75 0 01.75-.75h4.5a.75.75 0 01.75.75v4.5a.75.75 0 01-.75.75z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 4.5.75.75 0 01-.75-.75v-4.5a.75.75 0 01.75-.75h4.5a.75.75 0 01.75.75v4.5a.75.75 0 01-.75.75z"
+                  />
                 </svg>
               </div>
 
@@ -143,17 +185,33 @@ export default function Navbar() {
                   type="password"
                   placeholder="Masukkan sandi"
                   value={loginData.password}
-                  onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366] text-gray-800 placeholder:text-gray-500"
                   required
                 />
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v6h8z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v6h8z"
+                  />
                 </svg>
               </div>
 
               <div className="text-right">
-                <button type="button" className="text-sm text-gray-600 hover:text-[#003366] font-medium">
+                <button
+                  type="button"
+                  className="text-sm text-gray-600 hover:text-[#003366] font-medium"
+                >
                   Lupa sandi?
                 </button>
               </div>
@@ -183,10 +241,10 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Modal Daftar (Bisa di-scroll) */}
+      {/* Modal Daftar */}
       {isRegisterOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[120] p-4"
           onClick={() => setIsRegisterOpen(false)}
         >
           <div
@@ -194,15 +252,15 @@ export default function Navbar() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-8 pt-6">
+              <h2 className="text-xl text-[#003366] font-bold text-center mb-6">
+                REGISTRATION
+              </h2>
 
-              {/* Judul */}
-              <h2 className="text-xl text-[#003366] font-bold text-center mb-6">REGISTRATION</h2>
-
-              {/* Form Daftar */}
               <form onSubmit={handleRegister} className="space-y-4">
-                {/* Salutation */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Salutation</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Salutation
+                  </label>
                   <select
                     name="salutation"
                     value={registerData.salutation}
@@ -210,15 +268,22 @@ export default function Navbar() {
                     className="w-full text-gray-800 font-medium pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
                     required
                   >
-                    <option value="" className="text-gray-400">-- Pilih --</option>
-                    <option value="Bpk/Sdr." className="text-gray-800">Bpk/Sdr.</option>
-                    <option value="Ibu/Sdri." className="text-gray-800">Ibu/Sdri.</option>
+                    <option value="" className="text-gray-400">
+                      -- Pilih --
+                    </option>
+                    <option value="Bpk/Sdr." className="text-gray-800">
+                      Bpk/Sdr.
+                    </option>
+                    <option value="Ibu/Sdri." className="text-gray-800">
+                      Ibu/Sdri.
+                    </option>
                   </select>
                 </div>
 
-                {/* Full Name */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
                   <input
                     type="text"
                     name="fullName"
@@ -230,9 +295,10 @@ export default function Navbar() {
                   />
                 </div>
 
-                {/* Email */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -244,9 +310,10 @@ export default function Navbar() {
                   />
                 </div>
 
-                {/* Phone */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone
+                  </label>
                   <input
                     type="tel"
                     name="phone"
@@ -258,9 +325,10 @@ export default function Navbar() {
                   />
                 </div>
 
-                {/* Group */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Group</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Group
+                  </label>
                   <select
                     name="group"
                     value={registerData.group}
@@ -268,15 +336,22 @@ export default function Navbar() {
                     className="w-full text-gray-800 font-medium pl-3 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#003366]"
                     required
                   >
-                    <option value="" className="text-gray-400">--Pilih--</option>
-                    <option value="Admin Perguruan Tinggi" className="text-gray-800">Admin Perguruan Tinggi</option>
-                    <option value="Admin LLDIKTI" className="text-gray-800">Admin LLDIKTI</option>
+                    <option value="" className="text-gray-400">
+                      --Pilih--
+                    </option>
+                    <option value="Admin Perguruan Tinggi" className="text-gray-800">
+                      Admin Perguruan Tinggi
+                    </option>
+                    <option value="Admin LLDIKTI" className="text-gray-800">
+                      Admin LLDIKTI
+                    </option>
                   </select>
                 </div>
 
-                {/* Institution */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Institution</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Institution
+                  </label>
                   <input
                     type="text"
                     name="institution"
@@ -288,9 +363,10 @@ export default function Navbar() {
                   />
                 </div>
 
-                {/* Password */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password
+                  </label>
                   <input
                     type="password"
                     name="password"
@@ -302,9 +378,10 @@ export default function Navbar() {
                   />
                 </div>
 
-                {/* Assignment Letter */}
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Assignment letter</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Assignment letter
+                  </label>
                   <div className="flex items-center border border-gray-300 rounded px-3 py-2">
                     <span className="text-xs text-gray-500 mr-2">Choose file</span>
                     <input
@@ -314,15 +391,23 @@ export default function Navbar() {
                       className="hidden"
                       id="assignmentLetter"
                     />
-                    <label htmlFor="assignmentLetter" className="text-xs text-gray-600 cursor-pointer hover:text-gray-800">
-                      {registerData.assignmentLetter ? registerData.assignmentLetter.name : "No file chosen"}
+                    <label
+                      htmlFor="assignmentLetter"
+                      className="text-xs text-gray-600 cursor-pointer hover:text-gray-800"
+                    >
+                      {registerData.assignmentLetter
+                        ? registerData.assignmentLetter.name
+                        : "No file chosen"}
                     </label>
                     {registerData.assignmentLetter && (
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setRegisterData((prev) => ({ ...prev, assignmentLetter: null }));
+                          setRegisterData((prev) => ({
+                            ...prev,
+                            assignmentLetter: null,
+                          }));
                         }}
                         className="ml-2 text-red-500 hover:text-red-700"
                         aria-label="Hapus file"
@@ -333,7 +418,6 @@ export default function Navbar() {
                   </div>
                 </div>
 
-                {/* Tombol Submit */}
                 <button
                   type="submit"
                   className="w-full bg-[#003366] hover:bg-[#002c5b] text-white font-medium py-2 px-4 rounded transition-colors duration-300"
@@ -341,7 +425,6 @@ export default function Navbar() {
                   SUBMIT
                 </button>
 
-                {/* Back home */}
                 <div className="text-center text-sm text-gray-600 mt-4">
                   <button
                     type="button"
