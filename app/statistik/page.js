@@ -261,7 +261,7 @@ useEffect(() => {
           {/* Peta */}
           <div
             ref={mapRef}
-            className="w-full h-96 md:h-[500px] bg-gray-50 rounded-lg shadow-md mb-8"
+            className="w-full h-96 md:h-[500px] bg-gray-50 rounded-lg shadow-md mb-8 z-0"
           />
 
           {/* Line Chart */}
