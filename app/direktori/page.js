@@ -21,7 +21,7 @@ export default function Directory() {
   const [showAllKegiatanTable, setShowAllKegiatanTable] = useState(false);
   const [isFromMore, setIsFromMore] = useState(false);
 
-  // 👇 State untuk mode "pencarian global" (bukan filter sidebar)
+  // State pencarian 
   const [isGlobalSearch, setIsGlobalSearch] = useState(false);
 
   // Daftar kegiatan tetap
@@ -77,7 +77,6 @@ export default function Directory() {
     fetchData();
   }, []);
 
-  // 👇 Baca query dari URL saat halaman load
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const q = urlParams.get('q');
@@ -178,7 +177,7 @@ export default function Directory() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
-  // UI Loading & Error (tetap sama)
+  // UI Loading & Error 
   if (loading) {
     return (
       <div className="min-h-screen bg-white px-4 py-8 md:px-8">
