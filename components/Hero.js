@@ -10,7 +10,6 @@ export default function Hero() {
   const [showResults, setShowResults] = useState(false); 
   const searchRef = useRef(null); 
 
-  
   useEffect(() => {
     fetch("http://127.0.0.1:8000/api/statistik")
       .then((res) => res.json())
@@ -18,7 +17,6 @@ export default function Hero() {
       .catch((err) => console.error("Error fetch statistik:", err));
   }, []);
 
-  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -139,12 +137,12 @@ export default function Hero() {
                     {results.map((item) => (
                       <li key={item.id} className="py-3">
                         <Link
-                          href={`/direktori?q=${encodeURIComponent(query)}`}
+                          href={`/direktori?q=${encodeURIComponent(item.mitra || item.nama_mitra || item.judul_kerjasama)}`}
                           onClick={handleResultClick} 
                           className="block hover:bg-blue-50 p-2 rounded transition"
                         >
                           <p className="font-semibold text-[#003366] text-sm">
-                            {item.mitra}
+                            {item.mitra || item.nama_mitra}
                           </p>
                           <p className="text-sm text-gray-800 font-medium mt-1">
                             {item.judul_kerjasama}
