@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query  # Tambahkan Query di sini
+from fastapi import FastAPI, HTTPException, Query  
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 import os
@@ -9,7 +9,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# Izinkan akses dari Next.js (localhost:3000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -43,7 +42,6 @@ load_dotenv()
 
 app = FastAPI()
 
-# CORS: izinkan akses dari Next.js
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -211,7 +209,6 @@ def get_statistik():
         cur.close()
         conn.close()
 
-# === Endpoint lain tetap dipertahankan ===
 
 @app.get("/api/news")
 def get_news():
@@ -289,4 +286,5 @@ def get_kerjasama(type: str = "all"):
             "jumlah_income": float(row[10]) if row[10] else 0
         }
         for row in rows
+
     ]
