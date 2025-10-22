@@ -154,19 +154,20 @@ export default function Directory() {
     });
   }, [kerjasamaData]);
 
-  // Filter data
+  // 🔁 Filter data — PERBAIKAN UTAMA: gunakan if berantai, bukan else if
   let filteredData = [...kerjasamaData];
 
-  // Jika ada filter sidebar aktif → gunakan filter
   if (selectedKerjasama) {
     filteredData = filteredData.filter(item => item.bentuk_kerjasama === selectedKerjasama);
-  } else if (selectedStatus) {
+  }
+  if (selectedStatus) {
     filteredData = filteredData.filter(item => item.status_kerjasama === selectedStatus);
-  } else if (selectedKegiatan) {
+  }
+  if (selectedKegiatan) {
     filteredData = filteredData.filter(item => item.bentuk_kegiatan === selectedKegiatan);
-  } else if (isGlobalSearch || search) {
-    // Mode pencarian global (dari Hero atau input manual)
-    filteredData = kerjasamaData.filter(item =>
+  }
+  if (search) {
+    filteredData = filteredData.filter(item =>
       item.judul_kerjasama.toLowerCase().includes(search.toLowerCase()) ||
       item.bentuk_kegiatan.toLowerCase().includes(search.toLowerCase()) ||
       item.nama_mitra.toLowerCase().includes(search.toLowerCase())
@@ -208,9 +209,6 @@ export default function Directory() {
       </div>
     );
   }
-
-  // Apakah ada filter aktif (termasuk pencarian global)
-  const hasActiveFilter = selectedKerjasama || selectedStatus || selectedKegiatan || isGlobalSearch || search;
 
   return (
     <div className="min-h-screen bg-white px-4 py-8 md:px-8">
@@ -329,35 +327,30 @@ export default function Directory() {
 
         {/* Main Content */}
         <main className="md:col-span-3 bg-white">
-          {(hasActiveFilter || showAllKegiatanTable) && (
-            <div className="mb-6">
-              <div className="relative w-full">
-                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#003366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-                  </svg>
-                </div>
-                <div className="absolute inset-y-0 left-10 w-[1px] bg-gray-300"></div>
-                <input
-                  type="text"
-                  placeholder={showAllKegiatanTable ? "Search bentuk kegiatan..." : "Search directory"}
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setIsGlobalSearch(true);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full py-2.5 pl-16 pr-4 bg-white border border-[#003366] rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
-                />
+          {/* 🔍 Search bar SELALU muncul sejak awal */}
+          <div className="mb-6">
+            <div className="relative w-full">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#003366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                </svg>
               </div>
+              <div className="absolute inset-y-0 left-10 w-[1px] bg-gray-300"></div>
+              <input
+                type="text"
+                placeholder={showAllKegiatanTable ? "Search bentuk kegiatan..." : "Cari kerja sama (judul, mitra, kegiatan)..." }
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setIsGlobalSearch(true);
+                  setCurrentPage(1);
+                }}
+                className="w-full py-2.5 pl-16 pr-4 bg-white border border-[#003366] rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:border-transparent"
+              />
             </div>
-          )}
+          </div>
 
-          {!hasActiveFilter && !showAllKegiatanTable ? (
-            <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-              <p className="text-gray-500 text-center px-4">Pilih salah satu filter di sebelah kiri untuk menampilkan data kerja sama.</p>
-            </div>
-          ) : showAllKegiatanTable ? (
+          {showAllKegiatanTable ? (
             <>
               <p className="text-sm text-gray-600 mt-2 mb-4">Menampilkan {allKegiatanSummary.length} bentuk kegiatan</p>
               <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
@@ -411,6 +404,7 @@ export default function Directory() {
 
               <p className="text-sm text-gray-600 mt-2 mb-4">
                 Menampilkan {currentData.length} dari {filteredData.length} hasil
+                {search && ` untuk kata kunci "${search}"`}
               </p>
               <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm">
                 <table className="w-full border-collapse text-sm">
@@ -482,7 +476,11 @@ export default function Directory() {
             </>
           ) : (
             <div className="flex items-center justify-center h-40 bg-gray-50 rounded-lg border">
-              <p className="text-gray-500">Tidak ada data yang sesuai dengan filter.</p>
+              <p className="text-gray-500">
+                {search
+                  ? `Tidak ada data yang cocok dengan "${search}".`
+                  : "Tidak ada data kerja sama yang ditemukan."}
+              </p>
             </div>
           )}
         </main>
